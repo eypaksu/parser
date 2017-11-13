@@ -1,14 +1,11 @@
 package com;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 public class DatabaseTransaction {
@@ -19,7 +16,7 @@ public class DatabaseTransaction {
     private static final String SERVER="localhost";
     private static final String DAILY = "daily";
     private static final String HOURLY = "hourly";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
@@ -39,49 +36,55 @@ public class DatabaseTransaction {
 
 
         connectDb("DROP TABLE IF EXISTS `logs`;");
-        connectDb( "CREATE TABLE logs (log_id varchar(36) NOT NULL PRIMARY KEY,date TIMESTAMP,ip varchar(255),request varchar(255),status varchar(255),user_agent varchar(255));");
+        connectDb( "CREATE TABLE logs (date TIMESTAMP,ip varchar(255),request varchar(255),status varchar(255),user_agent varchar(255));");
 
     }
 
     public void loadLog(String logFilePath) throws SQLException {
-        BufferedReader br = null;
-        FileReader fr = null;
-        try {
-            br = new BufferedReader(new FileReader(logFilePath));
-            List<ParserModel> logs = new ArrayList<>();
-            String line = "";
+        Connection connection = DataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement("LOAD DATA LOCAL INFILE 'C:\\\\Users\\\\Eyup\\\\Desktop\\\\access.log' INTO TABLE logs\n" +
+                " FIELDS TERMINATED BY '|';");
+        statement.execute();
 
-            while ((line = br.readLine()) != null) {
-                line = line.replace("|", ",");
-                String[] data = line.split("\\s*,\\s*");
-                ParserModel parserModel = new ParserModel();
-                parserModel.setId(UUID.randomUUID().toString());
-                LocalDateTime date = LocalDateTime.parse(data[0], DateTimeFormatter.ofPattern(DATE_FORMAT));
-                parserModel.setDate(date);
-                parserModel.setIp(data[1]);
-                String request = data[2].substring(1);
-                parserModel.setRequest(request.replaceAll(".$", ""));
-                parserModel.setStatus(data[3]);
-                String userAgent = data[4].substring(1);
-                parserModel.setUserAgent(userAgent.replaceAll(".$", ""));
-                logs.add(parserModel);
-            }
 
-            saveToDb(logs);
-
-        } catch (
-                IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null)
-                    br.close();
-                if (fr != null)
-                    fr.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+//        BufferedReader br = null;
+//        FileReader fr = null;
+//        try {
+//            br = new BufferedReader(new FileReader(logFilePath));
+//            List<ParserModel> logs = new ArrayList<>();
+//            String line = "";
+//
+//            while ((line = br.readLine()) != null) {
+//                line = line.replace("|", ",");
+//                String[] data = line.split("\\s*,\\s*");
+//                ParserModel parserModel = new ParserModel();
+//                parserModel.setId(UUID.randomUUID().toString());
+//                LocalDateTime date = LocalDateTime.parse(data[0], DateTimeFormatter.ofPattern(DATE_FORMAT));
+//                parserModel.setDate(date);
+//                parserModel.setIp(data[1]);
+//                String request = data[2].substring(1);
+//                parserModel.setRequest(request.replaceAll(".$", ""));
+//                parserModel.setStatus(data[3]);
+//                String userAgent = data[4].substring(1);
+//                parserModel.setUserAgent(userAgent.replaceAll(".$", ""));
+//                logs.add(parserModel);
+//            }
+//
+//            saveToDb(logs);
+//
+//        } catch (
+//                IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (br != null)
+//                    br.close();
+//                if (fr != null)
+//                    fr.close();
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
     }
 
     private void saveToDb(List<ParserModel> list) throws SQLException {
@@ -132,7 +135,7 @@ public class DatabaseTransaction {
         while(resultSet.next()){
             ipList.add(resultSet.getString("ip"));
         }
-        System.out.print(ipList);
+        System.out.println(ipList);
         statement.close();
     }
 }

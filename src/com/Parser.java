@@ -19,9 +19,9 @@ public class Parser {
         DatabaseTransaction dbTransaction= new DatabaseTransaction();
         dbTransaction.createDb();
         dbTransaction.loadLog("C:\\Users\\Eyup\\Desktop\\access.log");
-        String startDate="2017-01-01.15:00:00";
+        String startDate="2017-01-01 15:00:00";
         String duration="hourly";
-        String threshold="250";
+        String threshold="200";
         dbTransaction.getRecord(startDate, duration, threshold);
 
     }

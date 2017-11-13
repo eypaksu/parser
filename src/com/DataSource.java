@@ -13,14 +13,6 @@ public class DataSource {
     private static HikariDataSource ds;
 
     static {
-//        config = new HikariConfig("datasource.properties");
-
-//        Properties props = new Properties();
-//        props.setProperty("dataSourceClassName", "org.h2.Driver");
-//        props.setProperty("dataSource.user", "");
-//        props.setProperty("dataSource.password", "");
-//        props.put("dataSource.logWriter", new PrintWriter(System.out));
-//        config = new HikariConfig(props);
 
         config.setJdbcUrl("jdbc:mysql://localhost:3306/parser");
         config.setUsername("parser");
@@ -31,9 +23,6 @@ public class DataSource {
 
         ds = new HikariDataSource(config);
 
-//        ds.setJdbcUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:/db.sql'");
-//        ds.setUsername("");
-//        ds.setPassword("");
     }
 
     private DataSource() {}
