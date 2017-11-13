@@ -1,7 +1,7 @@
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+package com;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -15,7 +15,11 @@ public class Parser {
 
         DatabaseTransaction dbTransaction= new DatabaseTransaction();
         dbTransaction.createDb();
-        dbTransaction.loadLogs("");
+        dbTransaction.loadLog("D:\\Users\\212603218\\Desktop\\access.log");
+        String startDate="2017-01-01.15:00:00";
+        String duration="hourly";
+        String threshold="250";
+        dbTransaction.getRecord(startDate, duration, threshold);
 
     }
 
