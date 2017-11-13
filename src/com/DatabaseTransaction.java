@@ -1,9 +1,5 @@
 package com;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,27 +23,9 @@ public class DatabaseTransaction {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
-    public DataSource getDataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setMaximumPoolSize(10);
-        config.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource ");
-        config.addDataSourceProperty("serverName", "localhost");
-        config.addDataSourceProperty("port", "3306");
-        config.addDataSourceProperty("databaseName", "parser");
-        config.addDataSourceProperty("user", "parser");
-        config.addDataSourceProperty("password", "1234");
+    public void connectDb(String query) throws SQLException {
 
-        return new HikariDataSource(config);  //pass in HikariConfig to HikariDataSource
-    }
-
-
-    public void connectDb(HikariDataSource dataSource, String query) throws SQLException {
-//        dataSource.setUser(USER);
-//        dataSource.setPassword(PASS);
-//        dataSource.setDatabaseName(DATABASE);
-//        dataSource.setServerName(SERVER);
-
-        Connection conn = dataSource.getConnection();
+        Connection conn = DataSource.getConnection();
         Statement stmt = conn.createStatement();
 
         stmt.executeUpdate(query);
@@ -60,8 +38,8 @@ public class DatabaseTransaction {
 
 
 
-        connectDb((HikariDataSource) getDataSource(), "DROP TABLE IF EXISTS `logs`;");
-        connectDb((HikariDataSource) getDataSource(), "CREATE TABLE logs (log_id varchar(36) NOT NULL PRIMARY KEY,date TIMESTAMP,ip varchar(255),request varchar(255),status varchar(255),user_agent varchar(255));");
+        connectDb("DROP TABLE IF EXISTS `logs`;");
+        connectDb( "CREATE TABLE logs (log_id varchar(36) NOT NULL PRIMARY KEY,date TIMESTAMP,ip varchar(255),request varchar(255),status varchar(255),user_agent varchar(255));");
 
     }
 
@@ -70,7 +48,7 @@ public class DatabaseTransaction {
         FileReader fr = null;
         try {
             br = new BufferedReader(new FileReader(logFilePath));
-            List<ParserModel> logs = new ArrayList<ParserModel>();
+            List<ParserModel> logs = new ArrayList<>();
             String line = "";
 
             while ((line = br.readLine()) != null) {
@@ -108,7 +86,7 @@ public class DatabaseTransaction {
 
     private void saveToDb(List<ParserModel> list) throws SQLException {
         try (
-                Connection connection = getDataSource().getConnection();
+                Connection connection = DataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement("INSERT INTO logs (log_id, date, ip,request,status,user_agent) VALUES (?, ?, ?, ?, ?, ?)");
         ) {
             int i = 0;
@@ -123,8 +101,8 @@ public class DatabaseTransaction {
                 statement.addBatch();
                 i++;
 
-                if (i % 1000 == 0 || i == list.size()) {
-                    statement.executeBatch(); // Execute every 1000 items.
+                if (i % 10000 == 0 || i == list.size()) {
+                    statement.executeLargeBatch(); // Execute every 1000 items.
                 }
 
             }
@@ -141,7 +119,7 @@ public class DatabaseTransaction {
             endDate = beginDate.plusHours(1);
         int limit = Integer.valueOf(threshold);
 
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DataSource.getConnection();
         Statement statement = connection.createStatement();
 
         String beginDateParam = beginDate.format(formatter);
