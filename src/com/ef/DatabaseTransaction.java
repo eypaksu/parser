@@ -18,7 +18,6 @@ public class DatabaseTransaction {
     private static final String DATABASE="parser";
     private static final String SERVER="localhost";
     private static final String DAILY = "daily";
-    private static final String HOURLY = "hourly";
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
