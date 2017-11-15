@@ -1,6 +1,7 @@
 package com.ef;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -13,7 +14,7 @@ public class Parser {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DAILY = "daily";
-    private static final String LOG_FILE = "src/com/resource/access.log";
+    private static final String LOG_FILE = "C:\\\\access.log";
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
@@ -21,9 +22,9 @@ public class Parser {
 
     public static void main(String args[]) throws SQLException, IOException, ParseException {
 
-        String startDate="2017-01-01 00:00:00";
-        String duration="hourly";
-        String threshold="200";
+        String startDate=args[0];
+        String duration=args[1];
+        String threshold=args[2];
 
         Parser parser = new Parser();
         parser.createDb();
@@ -38,8 +39,7 @@ public class Parser {
 
     }
 
-    public void loadLog() throws SQLException {
-
+    public void loadLog() throws SQLException, UnsupportedEncodingException {
 
         database.executeUpdate("LOAD DATA LOCAL INFILE '"+LOG_FILE+"' INTO TABLE logs" +
                 " FIELDS TERMINATED BY '|' (date, ip, request, status, user_agent) SET ID = NULL;");
@@ -49,10 +49,7 @@ public class Parser {
     public void findAndPrintLogs(String startDate, String duration, String threshold) throws SQLException {
 
         String query = buildQuery(startDate, duration, Integer.valueOf(threshold));
-        System.out.println(query);
-
         ResultSet resultSet = database.executeQuery(query);
-
 
         List<String> ipList = new ArrayList<>();
         while (resultSet.next()) {
