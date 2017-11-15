@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="parser:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/parser_jar</output-path>
+    <root id="archive" name="parser.jar">
+      <element id="module-output" name="parser" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/mysql-connector-java-5.1.44-bin.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/junit-4.10.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
